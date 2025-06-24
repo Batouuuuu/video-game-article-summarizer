@@ -1,4 +1,4 @@
-"""L'objectif est de récuppérer les url des jeux sur la page qui les regroupe"""
+"""Récuppère les urls des jeux sur la page qui les regroupe"""
 
 import requests
 from bs4 import BeautifulSoup
