@@ -10,6 +10,7 @@ class Scraper:
           self.date = ""
           self.commentaires_journaliste = []
           self.commentaires_joueurs = []
+          self.jeux = [] ## permet de stocker les données 
 
 
     def parcourir_url(self, liste_url):
@@ -18,7 +19,14 @@ class Scraper:
             self.reccuperer_donnees_principales(soup) 
             self.reccuperer_commentaires_journaliste(url)
             self.reccuperer_commentaires_joueurs(url)
-            self.afficher()
+            self.jeux.append({
+                "titre": self.titre,
+                "note": self.note,
+                "date": self.date,
+                "commentaires_journaliste": self.commentaires_journaliste.copy(),
+                "commentaires_joueurs": self.commentaires_joueurs.copy()
+            })
+            self.afficher_jeux()
 
 
     def extraire_elements(self, url) -> BeautifulSoup:
@@ -73,18 +81,19 @@ class Scraper:
         return commentaire.replace("\\'", "'").replace('\u200e', '').replace('\xa0', ' ').replace('\n', ' ').strip()
 
 
-    def afficher(self):
-        print(f"Titre : {self.titre}")
-        print(f"Note : {self.note}")
-        print(f"Date : {self.date}")
-        print(f"\nCommentaires journaliste ({len(self.commentaires_journaliste)}) :")
-        for c in self.commentaires_journaliste[:3]: 
-            print(f"- {c}")
-        print(f"\nCommentaires joueurs ({len(self.commentaires_joueurs)}) :")
-        for c in self.commentaires_joueurs[:3]:
-            print(f"- {c}")
-        print("\n")
-         
+    def afficher_jeux(self):
+        for jeu in self.jeux:
+            print(f"Titre : {jeu['titre']}")
+            print(f"Note : {jeu['note']}")
+            print(f"Date : {jeu['date']}")
+            print("Commentaires journaliste :")
+            for c in jeu['commentaires_journaliste'][:3]:
+                print(f"  - {c}")
+            print("Commentaires joueurs :")
+            for c in jeu['commentaires_joueurs'][:3]:
+                print(f"  - {c}")
+            print("\n" + "-"*40 + "\n")
+            
 
 
 liste_url = recuperation_url_jeux()
