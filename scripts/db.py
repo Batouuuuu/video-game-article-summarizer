@@ -32,6 +32,7 @@ def creation_tables(connection, reset= True):
             CREATE TABLE IF NOT EXISTS JEUX (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             titre TEXT NOT NULL,
+            plateforme TEXT,
             note INTEGER,
             date   
             );
@@ -61,7 +62,7 @@ def creation_tables(connection, reset= True):
 def ajouter_donnees(connection, data):
     cursor = connection.cursor()
     for jeu in data:
-        data_note_titre_date(cursor, jeu )
+        data_note_titre_date_plateformes(cursor, jeu )
         last_id = cursor.lastrowid ## permet de garder l'id du jeu et de l'associer aux commentaires
         commentaires_journalistes(cursor, last_id, jeu)
         commentaires_joueurs(cursor, last_id, jeu)
@@ -69,8 +70,8 @@ def ajouter_donnees(connection, data):
     connection.commit()   
 
 
-def data_note_titre_date(cursor, jeu):
-    return cursor.execute('''INSERT INTO JEUX (titre, note, date) VALUES (:titre, :note, :date)''', jeu)
+def data_note_titre_date_plateformes(cursor, jeu):
+    return cursor.execute('''INSERT INTO JEUX (titre, note, plateforme, date) VALUES (:titre, :note, :plateforme, :date)''', jeu)
 
 def commentaires_journalistes(cursor, last_id, jeu):
     liste_commentaires_journalistes = [{"texte": c, "jeu_id": last_id} for c in jeu["commentaires_journaliste"]]

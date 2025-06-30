@@ -2,12 +2,14 @@ import re
 from scrap_game_url import *
 from typing import List
 
-
+headers = {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3'}
 class Scraper:
     def __init__(self):
           self.titre = ""
           self.note = ""
           self.date = ""
+          self.plateforme = ""
           self.commentaires_journaliste = []
           self.commentaires_joueurs = []
           self.jeux = [] ## permet de stocker les données 
@@ -23,14 +25,16 @@ class Scraper:
                 "titre": self.titre,
                 "note": self.note,
                 "date": self.date,
+                "plateforme": self.plateforme,
                 "commentaires_journaliste": self.commentaires_journaliste.copy(),
                 "commentaires_joueurs": self.commentaires_joueurs.copy()
             })
-            self.afficher_jeux()
+            # self.afficher_jeux()
 
 
     def extraire_elements(self, url) -> BeautifulSoup:
-        page = requests.get(url)
+       
+        page = requests.get(url, headers=headers)
         soup = BeautifulSoup(page.content, "html.parser")
         return soup
          
@@ -44,16 +48,31 @@ class Scraper:
         else:
                 "Titre non trouvé"
 
-        date = soup.find("div", class_="platforms") 
-        if date:
-                texte = date.text.strip()
+        ## on reccupére la date et les plateformes
+        date_div = soup.find("div", class_="platforms") 
+        if date_div:
+                texte = date_div.text.strip()
                 match = re.search(r"Release Date:\s*(.*?)\s*-\s*", texte)
                 if match:
                     self.date = match.group(1)
+                    plateformes = []
+
+                    ## pour réccupérer les plateformes
+                    spans = date_div.find_all('span')
+                    for span in spans:
+                        strong = span.find('strong')
+                        if strong:
+                            plateformes.append(strong.text.strip())
+                            self.plateforme = ", ".join(plateformes) if plateformes else "Plateforme non trouvée"
+        
                 else:
                     self.date = "Date non trouvée"
+                    self.plateforme = "Plateforme non trouvée"
+                
+
         else:
             self.date = "Date non trouvée"
+            self.plateforme = "Plateforme non trouvée"
 
         notation = soup.find("div", class_="inner-orb") 
         if notation:
@@ -63,14 +82,14 @@ class Scraper:
 
 
     def reccuperer_commentaires_journaliste(self, url) -> List[str]:
-        page = requests.get(url+ "/reviews")
+        page = requests.get(url+ "/reviews", headers=headers)
         soup = BeautifulSoup(page.content, "html.parser")
         commentaires = soup.find_all("p", class_="mb-0 wspw")
         self.commentaires_journaliste = [self.nettoyer_texte(commentaire.text) for commentaire in commentaires]
      
 
     def reccuperer_commentaires_joueurs(self, url) -> List[str]:
-        page = requests.get(url+ "/user-reviews")
+        page = requests.get(url+ "/user-reviews", headers=headers)
         soup = BeautifulSoup(page.content, "html.parser")
         commentaires = soup.find_all("div", class_="w-100 excerpt")
         self.commentaires_joueurs = [self.nettoyer_texte(commentaire.text) for commentaire in commentaires]
@@ -86,6 +105,7 @@ class Scraper:
             print(f"Titre : {jeu['titre']}")
             print(f"Note : {jeu['note']}")
             print(f"Date : {jeu['date']}")
+            print(f"plateforme : {jeu['plateforme']}")
             print("Commentaires journaliste :")
             for c in jeu['commentaires_journaliste'][:3]:
                 print(f"  - {c}")

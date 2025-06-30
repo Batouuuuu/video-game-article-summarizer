@@ -1,0 +1,26 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.db
+
+# Virtual env
+games_venv/
+
+# Node / Frontend
+node_modules/
+dist/
+build/
+public/
+package-lock.json
+package.json
+eslint.config.js
+vite.config.ts
+tsconfig*.json
+
+
+.vscode/
+.idea/
+
+*.log
