@@ -19,7 +19,6 @@ eslint.config.js
 vite.config.ts
 tsconfig*.json
 
-
 .vscode/
 .idea/
 

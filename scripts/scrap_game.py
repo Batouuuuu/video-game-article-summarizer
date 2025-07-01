@@ -1,6 +1,12 @@
+""" Constitution de la classe Scrapper en se servant des batches, et en faisant des requetes sur les url contenues dans les pages. 
+Utilisation d'un User-agent et d'un sleep pour controler le scrapping et ne pas saturer le service.
+La class Scrapper est ensuite enregistrer sous format json"""
+
 import re
-from scrap_game_url import *
+from scrap_game_url import BeautifulSoup, requests, ujson
+from pathlib import Path
 from typing import List
+import time
 
 headers = {
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3'}
@@ -33,7 +39,6 @@ class Scraper:
 
 
     def extraire_elements(self, url) -> BeautifulSoup:
-       
         page = requests.get(url, headers=headers)
         soup = BeautifulSoup(page.content, "html.parser")
         return soup
@@ -69,7 +74,6 @@ class Scraper:
                     self.date = "Date non trouvée"
                     self.plateforme = "Plateforme non trouvée"
                 
-
         else:
             self.date = "Date non trouvée"
             self.plateforme = "Plateforme non trouvée"
@@ -116,6 +120,44 @@ class Scraper:
             
 
 
-liste_url = recuperation_url_jeux()
-scraper = Scraper()
-scraper.parcourir_url(liste_url)
+
+def charger_json_batches(chemin : Path) -> List[Path]:
+    """Trie les fichiers batches jsons"""
+    
+    batches = list(chemin.glob('../batches_urls/*.json'))
+    batches_sorted = sorted(batches, key=lambda f: int(re.search(r'\d+', f.name).group()))
+    return batches_sorted
+
+def ouvrir_json(chemin, scrapper, batches : List[Path]):
+    batch_number = 1
+    for batch_json in batches: 
+        with open(batch_json) as url_file:
+            urls = ujson.load(url_file)
+            scrapper.parcourir_url(urls)
+           
+            sauvegarder_scrapper_json(chemin, scrapper)
+        batch_number +=1
+        print(f"{batch_number}")
+        time.sleep(10)
+             
+def sauvegarder_scrapper_json(file_path, scrapper):
+    """Sauvegarder les resultats de notre class dans un json"""
+    
+    with open(file_path, 'w') as f:
+        ujson.dump(scrapper.jeux, f, indent=2)
+
+
+
+def main():
+   
+    scraper = Scraper()
+    chemin_batches = Path('../data/json/batches_urls/')
+    chemin_sauvegarde_fichier = "../data/json/scrapper_results.json"
+    liste_batches_sorted = charger_json_batches(chemin_batches)
+    ouvrir_json(chemin_sauvegarde_fichier, scraper, liste_batches_sorted)
+
+
+
+main()
+
+

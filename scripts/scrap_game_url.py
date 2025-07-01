@@ -44,7 +44,7 @@ def batcher_json(liste_urls, taille_batch=50):
     batch_nombre = 1
     for url in range(0, len(liste_urls), taille_batch):
         batch = liste_urls[url: url + taille_batch]
-        file_json_path =f"../data/json/batch_urls_{batch_nombre}.json"
+        file_json_path =f"../data/json/batches_urls/batch_urls_{batch_nombre}.json"
         batch_nombre += 1
         sauvegarder_url(batch, file_json_path)
     
