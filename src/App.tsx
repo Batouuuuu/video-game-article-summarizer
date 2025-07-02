@@ -1,9 +1,10 @@
 import "./App.css";
+import BackgroundVideo from "./components/BackgroundVideo";
 
 function App() {
   return (
     <>
-      <div className="card"></div>
+    <BackgroundVideo/>
     </>
   );
 }
