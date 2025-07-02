@@ -12,9 +12,7 @@ games_venv/
 node_modules/
 dist/
 build/
-public/
 package-lock.json
-package.json
 eslint.config.js
 vite.config.ts
 tsconfig*.json
